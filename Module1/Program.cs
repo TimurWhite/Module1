@@ -12,17 +12,16 @@ class Friend
 
 class Program
 {
-    static void Main()
+    // Method to read and parse input from a file
+    public static (int, List<Friend>) ReadInput(string filePath)
     {
-        // Read input from INPUT.TXT file
-        var inputLines = File.ReadAllLines("D:\\CSD\\Module1\\Module1\\INPUT.txt");
+        var inputLines = File.ReadAllLines(filePath);
         var firstLine = inputLines[0].Split();
         int n = int.Parse(firstLine[0]);
         int authority = int.Parse(firstLine[1]);
         
         List<Friend> friends = new List<Friend>();
 
-        // Parse each friend's required authority and influence
         for (int i = 1; i <= n; i++)
         {
             var line = inputLines[i].Split();
@@ -31,10 +30,18 @@ class Program
             friends.Add(new Friend { Index = i, RequiredAuthority = ai, Influence = bi });
         }
 
+        return (authority, friends);
+    }
+
+    // Core logic for determining the friends that can be convinced
+    public static (int, List<int>) ProcessFriends(List<Friend> friends, int initialAuthority)
+    {
         // Sort friends by their required authority
         friends = friends.OrderBy(f => f.RequiredAuthority).ToList();
 
         List<int> convincedFriends = new List<int>();
+        int authority = initialAuthority;
+
         foreach (var friend in friends)
         {
             if (authority >= friend.RequiredAuthority)
@@ -46,11 +53,24 @@ class Program
             }
         }
 
-        // Output results to OUTPUT.TXT file
-        using (var outputFile = new StreamWriter("D:\\CSD\\Module1\\Module1\\OUTPUT.txt"))
+        return (convincedFriends.Count, convincedFriends);
+    }
+
+    // Method to write the output to a file
+    public static void WriteOutput(string filePath, int count, List<int> convincedFriends)
+    {
+        using (var outputFile = new StreamWriter(filePath))
         {
-            outputFile.WriteLine(convincedFriends.Count);
+            outputFile.WriteLine(count);
             outputFile.WriteLine(string.Join(" ", convincedFriends));
         }
+    }
+
+    // Main method - This would still handle file reading and writing
+    public static void Main()
+    {
+        var (authority, friends) = ReadInput("D:\\CSD\\Module1\\Module1\\INPUT.txt");
+        var (convincedCount, convincedFriends) = ProcessFriends(friends, authority);
+        WriteOutput("D:\\CSD\\Module1\\Module1\\OUTPUT.txt", convincedCount, convincedFriends);
     }
 }
